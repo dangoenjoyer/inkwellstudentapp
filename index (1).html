@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inkwell: notes, homework and schedule for students</title>
+<meta name="description" content="Inkwell is a free study app for students. Keep your notes, homework and class schedule in one cosy place, and use it on any device.">
+
+<!-- Google Search Console: paste your verification line here, like this:
+     <meta name="google-site-verification" content="YOUR-CODE-HERE">  -->
+
+<!-- Fancy fonts for the Retro Cute look (falls back to normal fonts if offline) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Special+Elite&display=swap" rel="stylesheet">
+
+<!-- All the colours and layout live in style.css -->
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+<div class="page">
+
+  <header class="topbar">
+    <h1>Inkwell</h1>
+    <button class="theme-btn" id="themeBtn" aria-label="Switch look"></button>
+  </header>
+
+  <!-- Shown for a moment while we check if you are already signed in -->
+  <p class="loading" id="loading">Loading…</p>
+
+  <!-- ===================== SIGN-IN SCREEN (shown when signed out) ===================== -->
+  <section class="auth-card" id="authScreen" hidden>
+    <h2>Welcome to Inkwell</h2>
+    <p>Sign in to save your notes, homework and schedule to your account, so they follow you to any device.</p>
+
+    <button class="google-btn" id="googleBtn" type="button">Continue with Google</button>
+
+    <div class="divider">or use your email</div>
+
+    <form class="auth-form" id="authForm">
+      <div>
+        <label for="authEmail">Email</label>
+        <input class="field" type="email" id="authEmail" autocomplete="email" required>
+      </div>
+      <div>
+        <label for="authPassword">Password (at least 6 characters)</label>
+        <input class="field" type="password" id="authPassword" autocomplete="current-password" required>
+      </div>
+      <div class="auth-actions">
+        <button class="primary" type="submit">Sign in</button>
+        <button class="back" id="signUpBtn" type="button">Create account</button>
+      </div>
+      <button class="link-btn" id="forgotBtn" type="button">Forgot your password?</button>
+    </form>
+
+    <p class="hint" id="authMsg" role="alert"></p>
+  </section>
+
+  <!-- ===================== WHO IS SIGNED IN (shown when signed in) ===================== -->
+  <div class="userbar" id="userBar" hidden>
+    <span>Signed in as <span class="name" id="userName"></span></span>
+    <button class="back" id="signOutBtn" type="button">Sign out</button>
+    <span class="sync" id="syncStatus" aria-live="polite"></span>
+  </div>
+
+  <!-- Everything below is only shown once you are signed in -->
+  <div id="appScreen" hidden>
+
+  <!-- The three tabs. data-tab matches the id of the panel below it. -->
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="notes">Notes</button>
+    <button class="tab" role="tab" data-tab="homework">Homework</button>
+    <button class="tab" role="tab" data-tab="schedule">Schedule</button>
+  </nav>
+
+  <!-- ===================== TAB 1: NOTES ===================== -->
+  <section id="panel-notes">
+
+    <!-- Screen 1: all your notes -->
+    <div id="listScreen">
+      <div class="toolbar">
+        <button class="primary" id="newNote">Add note</button>
+        <input class="search" id="search" type="search" placeholder="Search your notes" aria-label="Search your notes">
+      </div>
+      <div class="subjects" id="subjects"></div>
+      <div class="grid" id="grid"></div>
+      <p class="none" id="noneMsg" hidden></p>
+    </div>
+
+    <!-- Screen 2: one note -->
+    <div class="editor" id="noteScreen" hidden>
+      <div class="editor-top">
+        <button class="back" id="backBtn">← All notes</button>
+        <span class="saved" id="saved" aria-live="polite"></span>
+      </div>
+
+      <input class="title-field" id="title" placeholder="Note title" aria-label="Note title">
+
+      <div class="row">
+        <div>
+          <label for="subjectSelect">Subject</label>
+          <select class="field" id="subjectSelect"></select>
+        </div>
+        <button class="delete" id="deleteNote">Delete note</button>
+      </div>
+
+      <div class="summary">
+        <label for="summary">My summary (in your own words)</label>
+        <textarea id="summary" placeholder="Write 2 or 3 sentences that sum up this note."></textarea>
+      </div>
+
+      <div>
+        <label for="body">Notes</label>
+        <textarea class="body-field" id="body" placeholder="Start typing your notes here."></textarea>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TAB 2: HOMEWORK ===================== -->
+  <section id="panel-homework" hidden>
+    <form class="panel-form" id="hwForm">
+      <div class="grow">
+        <label for="hwText">Homework</label>
+        <input class="field" id="hwText" placeholder="e.g. Maths worksheet, page 12" required>
+      </div>
+      <div>
+        <label for="hwSubject">Subject</label>
+        <select class="field" id="hwSubject"></select>
+      </div>
+      <div>
+        <label for="hwDue">Due date</label>
+        <input class="field" type="date" id="hwDue">
+      </div>
+      <button class="primary" type="submit">Add</button>
+    </form>
+
+    <ul class="hw-list" id="hwList"></ul>
+    <p class="none" id="hwNone" hidden>Nothing to do. Add your first homework above.</p>
+    <button class="delete clear" id="clearDone" hidden>Clear finished</button>
+  </section>
+
+  <!-- ===================== TAB 3: SCHEDULE ===================== -->
+  <section id="panel-schedule" hidden>
+    <form class="panel-form" id="schedForm">
+      <div>
+        <label for="schedDay">Day</label>
+        <select class="field" id="schedDay"></select>
+      </div>
+      <div>
+        <label for="schedStart">Starts</label>
+        <input class="field" type="time" id="schedStart" required>
+      </div>
+      <div>
+        <label for="schedEnd">Ends</label>
+        <input class="field" type="time" id="schedEnd">
+      </div>
+      <div class="grow">
+        <label for="schedWhat">What</label>
+        <input class="field" id="schedWhat" list="subjectList" placeholder="e.g. Maths" required>
+      </div>
+      <button class="primary" type="submit">Add</button>
+    </form>
+    <p class="hint" id="schedMsg" role="alert"></p>
+
+    <div class="week" id="week"></div>
+    <datalist id="subjectList"></datalist>
+  </section>
+
+  </div> <!-- end of appScreen -->
+
+</div>
+
+<!-- All the behaviour lives in script.js. type="module" lets it load Firebase. -->
+<script type="module" src="script.js"></script>
+</body>
+</html>
